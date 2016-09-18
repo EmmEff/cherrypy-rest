@@ -3,6 +3,11 @@ Sample implementation of a CherryPy REST API server
 
 Input/output format is JSON
 
+## TODO ##
+
+* Validate JSON input/content type
+* Add authentication
+
 ## Usage ##
 
 Run `./server.py`
