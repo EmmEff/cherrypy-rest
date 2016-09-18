@@ -63,6 +63,8 @@ class NodesController(object): \
         /nodes (GET)
         /nodes/<name> (GET)
         /nodes/<name> (POST)
+        /nodes/<name> (PUT)
+        /nodes/<name> (DELETE)
         """
 
         if cherrypy.request.method == 'POST':
@@ -90,6 +92,14 @@ class NodesController(object): \
                     400, 'Missing node \'name\' argument')
 
             return 'Request to update node \"{0}\"'.format(name)
+        elif cherrypy.request.method == 'DELETE':
+            if not name:
+                raise cherrypy.HTTPError(
+                    400, 'Missing node \'name\' argument')
+
+            cherrypy.response.status = 204
+
+            return ''
 
         if name:
             # Handle a GET for a specific node
@@ -137,13 +147,14 @@ if __name__ == '__main__':
     # /nodes/{name} (GET)
     # /nodes/{name} (POST)
     # /nodes/{name} (PUT)
+    # /nodes/{name} (DELETE)
     #
     # Request "/nodes/notfound" (GET) to test the 404 (not found) handler
     dispatcher.connect(name='nodes',
                        route='/nodes/{name}',
                        action='nodes',
                        controller=NodesController(),
-                       conditions={'method': ['GET', 'POST', 'PUT']})
+                       conditions={'method': ['GET', 'POST', 'PUT', 'DELETE']})
 
     config = {
         'global': {
