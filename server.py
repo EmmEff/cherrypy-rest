@@ -56,6 +56,7 @@ class NodesController(object): \
 
     """Controller for fictional "nodes" webservice APIs"""
 
+    @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def nodes(self, name=None):
         """
