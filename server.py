@@ -127,20 +127,22 @@ def jsonify_error(status, message, traceback, version): \
 if __name__ == '__main__':
     MyBackgroundThread(cherrypy.engine).subscribe()
 
-    d = cherrypy.dispatch.RoutesDispatcher()
+    dispatcher = cherrypy.dispatch.RoutesDispatcher()
 
     # /nodes (GET)
-    d.connect(name='nodes', route='/nodes', action='nodes',
-              controller=NodesController())
+    dispatcher.connect(name='nodes', route='/nodes', action='nodes',
+                       controller=NodesController())
 
     # /nodes/{name} (GET)
     # /nodes/{name} (POST)
     # /nodes/{name} (PUT)
     #
     # Request "/nodes/notfound" (GET) to test the 404 (not found) handler
-    d.connect(name='nodes', route='/nodes/{name}', action='nodes',
-              controller=NodesController(),
-              conditions={'method': ['GET', 'POST', 'PUT']})
+    dispatcher.connect(name='nodes',
+                       route='/nodes/{name}',
+                       action='nodes',
+                       controller=NodesController(),
+                       conditions={'method': ['GET', 'POST', 'PUT']})
 
     config = {
         'global': {
@@ -148,7 +150,7 @@ if __name__ == '__main__':
             # 'server.socket_port': 8080,
         },
         '/': {
-            'request.dispatch': d,
+            'request.dispatch': dispatcher,
             'error_page.default': jsonify_error,
         },
     }
