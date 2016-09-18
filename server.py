@@ -13,7 +13,11 @@ from cherrypy.process import plugins
 
 
 def worker():
-    """Background Timer that runs the hello() function every 5 seconds"""
+    """Background Timer that runs the hello() function every 5 seconds
+
+    TODO: this needs to be fixed/optimized. I don't like creating the thread
+    repeatedly.
+    """
 
     while True:
         t = threading.Timer(5.0, hello)
@@ -77,6 +81,15 @@ class NodesController(object): \
             return ('You\'re wanting to create a node named'
                     ' \"{0}\"?'.format(name))
 
+        elif cherrypy.request.method == 'PUT':
+            # Handle PUT method for record updates
+
+            if not name:
+                raise cherrypy.HTTPError(
+                    400, 'Missing node \'name\' argument')
+
+            return 'Request to update node \"{0}\"'.format(name)
+
         if name:
             # Handle a GET for a specific node
 
@@ -128,7 +141,8 @@ if __name__ == '__main__':
 
     # /nodes/{name} (POST)
     d.connect(name='nodes', route='/nodes/{name}', action='nodes',
-              controller=NodesController(), conditions={'method': ['POST']})
+              controller=NodesController(),
+              conditions={'method': ['POST', 'PUT']})
 
     config = {
         'global': {

@@ -20,3 +20,7 @@ or trigger the 404 (not found) error handler:
 or simulate a node creation POST request:
 
     curl -v -H "Content-Type: application/json" -d "{}" localhost:8080/nodes/blah
+
+or simulate node update (PUT) request:
+
+    curl -v -H "Content-Type: application/json" -X PUT -d "{}" localhost:8080/nodes/blah
