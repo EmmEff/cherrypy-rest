@@ -134,15 +134,13 @@ if __name__ == '__main__':
               controller=NodesController())
 
     # /nodes/{name} (GET)
+    # /nodes/{name} (POST)
+    # /nodes/{name} (PUT)
     #
     # Request "/nodes/notfound" (GET) to test the 404 (not found) handler
     d.connect(name='nodes', route='/nodes/{name}', action='nodes',
-              controller=NodesController())
-
-    # /nodes/{name} (POST)
-    d.connect(name='nodes', route='/nodes/{name}', action='nodes',
               controller=NodesController(),
-              conditions={'method': ['POST', 'PUT']})
+              conditions={'method': ['GET', 'POST', 'PUT']})
 
     config = {
         'global': {
