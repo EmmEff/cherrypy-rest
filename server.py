@@ -11,6 +11,11 @@ import json
 import cherrypy
 from cherrypy.process import plugins
 
+sample_nodes = [
+    'node1',
+    'node2',
+]
+
 
 def worker():
     """Background Timer that runs the hello() function every 5 seconds
@@ -56,12 +61,25 @@ class NodesController(object): \
 
     """Controller for fictional "nodes" webservice APIs"""
 
+    @cherrypy.tools.json_out()
+    def get_all(self):
+        # Regular request for '/nodes' URI
+        return [{'name': name} for name in sample_nodes]
+
+    @cherrypy.tools.json_out()
+    def get(self, name):
+        # Handle a GET for a specific node
+
+        if name not in sample_nodes:
+            raise cherrypy.HTTPError(
+                404, 'Node \"{0}\" not found'.format(name))
+
+        return [{'name': name}]
+
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def nodes(self, name=None):
+    def nodes(self, name):
         """
-        /nodes (GET)
-        /nodes/<name> (GET)
         /nodes/<name> (POST)
         /nodes/<name> (PUT)
         /nodes/<name> (DELETE)
@@ -72,46 +90,24 @@ class NodesController(object): \
             # create a separate "action" for this controller as opposed
             # to overriding this handler.
 
-            if not name:
-                # We have to explicitly check for the 'name' argument
-                # because this is an overriden controller and name=None
-                # is a valid option for the GET method.
-
-                raise cherrypy.HTTPError(
-                    400, 'Missing node \'name\' argument')
-
             # Successful POST request
             return ('You\'re wanting to create a node named'
                     ' \"{0}\"?'.format(name))
 
         elif cherrypy.request.method == 'PUT':
-            # Handle PUT method for record updates
-
-            if not name:
-                raise cherrypy.HTTPError(
-                    400, 'Missing node \'name\' argument')
-
-            return 'Request to update node \"{0}\"'.format(name)
-        elif cherrypy.request.method == 'DELETE':
-            if not name:
-                raise cherrypy.HTTPError(
-                    400, 'Missing node \'name\' argument')
-
-            cherrypy.response.status = 204
-
-            return ''
-
-        if name:
-            # Handle a GET for a specific node
-
-            if name == 'notfound':
+            if name not in sample_nodes:
                 raise cherrypy.HTTPError(
                     404, 'Node \"{0}\" not found'.format(name))
 
-            return 'You requested the node \"{0}\"'.format(name)
+            # Empty response (http status 204) for successful PUT request
+            cherrypy.response.status = 204
 
-        # Regular request for '/nodes' URI
-        return 'hello there: id=%r' % (id(self))
+            return ''
+        elif cherrypy.request.method == 'DELETE':
+            # Empty response (http status 204) for successful DELETE request
+            cherrypy.response.status = 204
+
+            return ''
 
 
 def jsonify_error(status, message, traceback, version): \
@@ -141,20 +137,29 @@ if __name__ == '__main__':
     dispatcher = cherrypy.dispatch.RoutesDispatcher()
 
     # /nodes (GET)
-    dispatcher.connect(name='nodes', route='/nodes', action='nodes',
-                       controller=NodesController())
+    dispatcher.connect(name='nodes',
+                       route='/nodes',
+                       action='get_all',
+                       controller=NodesController(),
+                       conditions={'method': ['GET']})
 
     # /nodes/{name} (GET)
-    # /nodes/{name} (POST)
-    # /nodes/{name} (PUT)
-    # /nodes/{name} (DELETE)
     #
     # Request "/nodes/notfound" (GET) to test the 404 (not found) handler
     dispatcher.connect(name='nodes',
                        route='/nodes/{name}',
+                       action='get',
+                       controller=NodesController(),
+                       conditions={'method': ['GET']})
+
+    # /nodes/{name} (POST)
+    # /nodes/{name} (PUT)
+    # /nodes/{name} (DELETE)
+    dispatcher.connect(name='nodes',
+                       route='/nodes/{name}',
                        action='nodes',
                        controller=NodesController(),
-                       conditions={'method': ['GET', 'POST', 'PUT', 'DELETE']})
+                       conditions={'method': ['POST', 'PUT', 'DELETE']})
 
     config = {
         'global': {
