@@ -10,6 +10,7 @@ from __future__ import print_function
 import threading
 import json
 import cherrypy
+import cherrypy_cors
 from cherrypy.process import plugins
 
 sample_nodes = [
@@ -133,6 +134,8 @@ def jsonify_error(status, message, traceback, version): \
 
 
 if __name__ == '__main__':
+    cherrypy_cors.install()
+
     MyBackgroundThread(cherrypy.engine).subscribe()
 
     dispatcher = cherrypy.dispatch.RoutesDispatcher()
@@ -170,6 +173,7 @@ if __name__ == '__main__':
         '/': {
             'request.dispatch': dispatcher,
             'error_page.default': jsonify_error,
+            'cors.expose.on': True,
         },
     }
 
