@@ -13,6 +13,7 @@ import cherrypy
 from cherrypy.lib import auth_basic
 import cherrypy_cors
 from cherrypy.process import plugins
+from marshmallow import Schema, fields
 
 
 USERS = {
@@ -23,6 +24,10 @@ sample_nodes = [
     'node1',
     'node2',
 ]
+
+
+class NodeSchema(Schema):
+    name = fields.String(required=True)
 
 
 def worker():
@@ -86,36 +91,46 @@ class NodesController(object): \
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def nodes(self, name):
-        """
-        /nodes/<name> (POST)
-        /nodes/<name> (PUT)
-        /nodes/<name> (DELETE)
-        """
+    def add_node(self):
+        # Handle a nodes create request. It might be preferred to
+        # create a separate "action" for this controller as opposed
+        # to overriding this handler.
 
-        if cherrypy.request.method == 'POST':
-            # Handle a nodes create request. It might be preferred to
-            # create a separate "action" for this controller as opposed
-            # to overriding this handler.
+        request_data = cherrypy.request.json
 
-            # Successful POST request
-            return ('You\'re wanting to create a node named'
-                    ' \"{0}\"?'.format(name))
+        data, errors = NodeSchema().load(request_data)
 
-        elif cherrypy.request.method == 'PUT':
-            if name not in sample_nodes:
-                raise cherrypy.HTTPError(
-                    404, 'Node \"{0}\" not found'.format(name))
+        if errors:
+            # Attempt to format errors dict from Marshmallow
+            errmsg = ', '.join(
+                ['Key: [{0}], Error: {1}'.format(key, error)
+                 for key, error in errors.items()])
 
-            # Empty response (http status 204) for successful PUT request
-            cherrypy.response.status = 204
+            raise cherrypy.HTTPError(
+                400, 'Malformed POST request data: {0}'.format(errmsg))
 
-            return ''
-        elif cherrypy.request.method == 'DELETE':
-            # Empty response (http status 204) for successful DELETE request
-            cherrypy.response.status = 204
+        # Successful POST request
+        return 'TODO: add node [{0}]'.format(data['name'])
 
-            return ''
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def update_node(self, name):
+        if name not in sample_nodes:
+            raise cherrypy.HTTPError(
+                404, 'Node \"{0}\" not found'.format(name))
+
+        # Empty response (http status 204) for successful PUT request
+        cherrypy.response.status = 204
+
+        return ''
+
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def delete_node(self, name):
+        # Empty response (http status 204) for successful DELETE request
+        cherrypy.response.status = 204
+
+        return ''
 
 
 def jsonify_error(status, message, traceback, version): \
@@ -170,10 +185,22 @@ if __name__ == '__main__':
     # /nodes/{name} (PUT)
     # /nodes/{name} (DELETE)
     dispatcher.connect(name='nodes',
-                       route='/nodes/{name}',
-                       action='nodes',
+                       route='/nodes',
+                       action='add_node',
                        controller=NodesController(),
-                       conditions={'method': ['POST', 'PUT', 'DELETE']})
+                       conditions={'method': ['POST']})
+
+    dispatcher.connect(name='nodes',
+                       route='/nodes/{name}',
+                       action='update_node',
+                       controller=NodesController(),
+                       conditions={'method': ['PUT']})
+
+    dispatcher.connect(name='nodes',
+                       route='/nodes/{name}',
+                       action='delete_node',
+                       controller=NodesController(),
+                       conditions={'method': ['DELETE']})
 
     config = {
         '/': {

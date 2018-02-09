@@ -3,10 +3,6 @@ Sample implementation of a CherryPy REST API server
 
 Input/output format is JSON
 
-## TODO ##
-
-* Validate JSON input/content type
-
 ## Usage ##
 
 Run `./server.py`
@@ -29,7 +25,7 @@ or simulate a node creation POST request:
 
     curl --verbose --user user:password \
         --header "Content-Type: application/json" \
-        --data "{}" localhost:8080/nodes/blah
+        --data "{\"name\": \"blah\"}" localhost:8080/nodes
 
 or simulate node update (PUT) request:
 
