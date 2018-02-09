@@ -166,10 +166,6 @@ if __name__ == '__main__':
                        conditions={'method': ['POST', 'PUT', 'DELETE']})
 
     config = {
-        'global': {
-            'server.socket_host': '0.0.0.0',
-            # 'server.socket_port': 8080,
-        },
         '/': {
             'request.dispatch': dispatcher,
             'error_page.default': jsonify_error,
@@ -178,6 +174,11 @@ if __name__ == '__main__':
     }
 
     cherrypy.tree.mount(root=None, config=config)
+
+    cherrypy.config.update({
+        # 'server.socket_host': '0.0.0.0',
+        # 'server.socket_port': 8080,
+    })
 
     cherrypy.engine.start()
     cherrypy.engine.block()
