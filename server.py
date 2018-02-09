@@ -10,8 +10,14 @@ from __future__ import print_function
 import threading
 import json
 import cherrypy
+from cherrypy.lib import auth_basic
 import cherrypy_cors
 from cherrypy.process import plugins
+
+
+USERS = {
+    'user': 'password',
+}
 
 sample_nodes = [
     'node1',
@@ -133,6 +139,10 @@ def jsonify_error(status, message, traceback, version): \
     return response_body
 
 
+def validate_password(realm, username, password):
+    return username in USERS and USERS[username] == password
+
+
 if __name__ == '__main__':
     cherrypy_cors.install()
 
@@ -170,6 +180,9 @@ if __name__ == '__main__':
             'request.dispatch': dispatcher,
             'error_page.default': jsonify_error,
             'cors.expose.on': True,
+            'tools.auth_basic.on': True,
+            'tools.auth_basic.realm': 'localhost',
+            'tools.auth_basic.checkpassword': validate_password,
         },
     }
 
