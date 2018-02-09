@@ -6,7 +6,6 @@ Input/output format is JSON
 ## TODO ##
 
 * Validate JSON input/content type
-* Add authentication
 
 ## Usage ##
 
@@ -14,18 +13,25 @@ Run `./server.py`
 
 In another shell session, use `curl` or `wget` to issue URI requests.
 
+Since the example uses HTTP Basic authentication, it is necessary to
+specify the user as `user` and password as `password`. This can be seen
+in the code under the `import` statements.
+
 For example, to request all nodes:
 
-    curl -v localhost:8080/nodes
+    curl --verbose --user user:password localhost:8080/nodes
 
 or trigger the 404 (not found) error handler:
 
-    curl -v localhost:8080/nodes/notfound
+    curl --verbose --user user:password localhost:8080/nodes/notfound
 
 or simulate a node creation POST request:
 
-    curl -v -H "Content-Type: application/json" -d "{}" localhost:8080/nodes/blah
+    curl --verbose --user user:password \
+        --header "Content-Type: application/json" \
+        --data "{}" localhost:8080/nodes/blah
 
 or simulate node update (PUT) request:
 
-    curl -v -H "Content-Type: application/json" -X PUT -d "{}" localhost:8080/nodes/blah
+    curl --verbose --header "Content-Type: application/json" \
+        --request PUT --data "{}" localhost:8080/nodes/blah
