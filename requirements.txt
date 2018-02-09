@@ -1,3 +1,5 @@
 CherryPy
 Routes
 cherrypy_cors
+marshmallow
+pytest
