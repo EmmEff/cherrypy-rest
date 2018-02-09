@@ -6,6 +6,7 @@
 CherryPy-based webservice daemon with background threads
 """
 
+from __future__ import print_function
 import threading
 import json
 import cherrypy
@@ -33,7 +34,7 @@ def worker():
 def hello():
     """Output 'hello' on the console"""
 
-    print 'hello'
+    print('hello')
 
 
 class MyBackgroundThread(plugins.SimplePlugin):
