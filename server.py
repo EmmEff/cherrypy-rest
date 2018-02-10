@@ -182,20 +182,20 @@ if __name__ == '__main__':
                        conditions={'method': ['GET']})
 
     # /nodes/{name} (POST)
-    # /nodes/{name} (PUT)
-    # /nodes/{name} (DELETE)
     dispatcher.connect(name='nodes',
                        route='/nodes',
                        action='add_node',
                        controller=NodesController(),
                        conditions={'method': ['POST']})
 
+    # /nodes/{name} (PUT)
     dispatcher.connect(name='nodes',
                        route='/nodes/{name}',
                        action='update_node',
                        controller=NodesController(),
                        conditions={'method': ['PUT']})
 
+    # /nodes/{name} (DELETE)
     dispatcher.connect(name='nodes',
                        route='/nodes/{name}',
                        action='delete_node',
