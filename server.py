@@ -53,7 +53,7 @@ class MyBackgroundThread(plugins.SimplePlugin):
     """CherryPy plugin to create a background worker thread"""
 
     def __init__(self, bus):
-        plugins.SimplePlugin.__init__(self, bus)
+        super(MyBackgroundThread, self).__init__(bus)
 
         self.t = None
 
