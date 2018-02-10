@@ -83,7 +83,6 @@ class NodesController(object): \
         """
         Handler for /nodes (GET)
         """
-        # Regular request for '/nodes' URI
         return [{'name': name} for name in sample_nodes]
 
     @cherrypy.tools.json_out()
