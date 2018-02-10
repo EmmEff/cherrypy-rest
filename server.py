@@ -91,11 +91,8 @@ class NodesController(object): \
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def add_node(self):
-        # Handle a nodes create request. It might be preferred to
-        # create a separate "action" for this controller as opposed
-        # to overriding this handler.
-
+    def add_node(self): \
+            # pylint: disable=no-self-use
         request_data = cherrypy.request.json
 
         data, errors = NodeSchema().load(request_data)
