@@ -31,3 +31,11 @@ or simulate node update (PUT) request:
 
     curl --verbose --header "Content-Type: application/json" \
         --request PUT --data "{}" localhost:8080/nodes/blah
+
+## Unit tests
+
+Simple unit test for Marshmallow-based schema is available in `test_schema.py`.
+
+Invoke it as follows:
+
+    pytest -sv test_schema.py
