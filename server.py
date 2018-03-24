@@ -16,6 +16,12 @@ import cherrypy_cors
 from marshmallow import Schema, fields
 
 
+class NodeNotFound(Exception):
+    """
+    Node not found exception
+    """
+
+
 USERS = {
     'user': 'password',
 }
