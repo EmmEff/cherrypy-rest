@@ -119,7 +119,9 @@ class NodesController(object): \
             raise cherrypy.HTTPError(
                 400, 'Malformed POST request data: {0}'.format(errmsg))
 
-        # Successful POST request
+        # Successful POST (created) request
+        cherrypy.response.status = 201
+
         return 'TODO: add node [{0}]'.format(data['name'])
 
     @cherrypy.tools.json_in()
