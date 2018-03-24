@@ -27,15 +27,34 @@ USERS = {
 }
 
 sample_nodes = [
-    'node1',
-    'node2',
+    {
+        'id': 1,
+        'name': 'node1',
+    },
+    {
+        'id': 2,
+        'name': 'node2',
+    },
 ]
+
+
+def get_node_by_id(id):
+    """
+    Raises:
+        NodeNotFound
+    """
+    for node in sample_nodes:
+        if node['id'] == int(id):
+            return node
+
+    raise NodeNotFound('Node [{0}] not found'.format(id))
 
 
 class NodeSchema(Schema):
     """
     Marshmallow schema for nodes object
     """
+    id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
 
 
@@ -89,20 +108,19 @@ class NodesController(object): \
         """
         Handler for /nodes (GET)
         """
-        return [{'name': name} for name in sample_nodes]
+        return NodeSchema().dump(sample_nodes, many=True).data
 
     @cherrypy.tools.json_out()
-    def get(self, name): \
+    def get(self, id): \
             # pylint: disable=no-self-use
         """
         Handler for /nodes/<name> (GET)
         """
-
-        if name not in sample_nodes:
+        try:
+            return NodeSchema().dump(get_node_by_id(id)).data
+        except NodeNotFound:
             raise cherrypy.HTTPError(
-                404, 'Node \"{0}\" not found'.format(name))
-
-        return [{'name': name}]
+                404, 'Node [{0}] not found'.format(id))
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
@@ -137,25 +155,30 @@ class NodesController(object): \
         """
         Handler for /nodes/<name> (PUT)
         """
+        try:
+            get_node_by_id(id)
 
-        if name not in sample_nodes:
+            # Empty response (http status 204) for successful PUT request
+            cherrypy.response.status = 204
+
+            return ''
+        except NodeNotFound:
             raise cherrypy.HTTPError(
                 404, 'Node \"{0}\" not found'.format(name))
 
-        # Empty response (http status 204) for successful PUT request
-        cherrypy.response.status = 204
-
-        return ''
-
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def delete_node(self, name): \
+    def delete_node(self, id): \
             # pylint: disable=unused-argument,no-self-use
         """
         Handler for /nodes/<name> (DELETE)
         """
+        try:
+            get_node_by_id(id)
 
-        # TODO: handle DELETE here
+            # TODO: handle DELETE here
+        except NodeNotFound:
+            pass
 
         # Empty response (http status 204) for successful DELETE request
         cherrypy.response.status = 204
@@ -210,7 +233,7 @@ if __name__ == '__main__':
     #
     # Request "/nodes/notfound" (GET) to test the 404 (not found) handler
     dispatcher.connect(name='nodes',
-                       route='/nodes/{name}',
+                       route='/nodes/{id}',
                        action='get',
                        controller=NodesController(),
                        conditions={'method': ['GET']})
@@ -224,14 +247,14 @@ if __name__ == '__main__':
 
     # /nodes/{name} (PUT)
     dispatcher.connect(name='nodes',
-                       route='/nodes/{name}',
+                       route='/nodes/{id}',
                        action='update_node',
                        controller=NodesController(),
                        conditions={'method': ['PUT']})
 
     # /nodes/{name} (DELETE)
     dispatcher.connect(name='nodes',
-                       route='/nodes/{name}',
+                       route='/nodes/{id}',
                        action='delete_node',
                        controller=NodesController(),
                        conditions={'method': ['DELETE']})
