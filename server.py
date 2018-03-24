@@ -150,10 +150,10 @@ class NodesController(object): \
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def update_node(self, name): \
+    def update_node(self, id): \
             # pylint: disable=no-self-use
         """
-        Handler for /nodes/<name> (PUT)
+        Handler for /nodes/<id> (PUT)
         """
         try:
             get_node_by_id(id)
@@ -164,7 +164,7 @@ class NodesController(object): \
             return ''
         except NodeNotFound:
             raise cherrypy.HTTPError(
-                404, 'Node \"{0}\" not found'.format(name))
+                404, 'Node \"{0}\" not found'.format(id))
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
