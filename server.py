@@ -55,7 +55,7 @@ class NodeSchema(Schema):
     Marshmallow schema for nodes object
     """
     id = fields.Integer(dump_only=True)
-    name = fields.String(required=True)
+    name = fields.String()
 
 
 def worker():
@@ -133,7 +133,6 @@ class NodesController(object): \
         request_data = cherrypy.request.json
 
         data, errors = NodeSchema().load(request_data)
-
         if errors:
             # Attempt to format errors dict from Marshmallow
             errmsg = ', '.join(
@@ -157,6 +156,14 @@ class NodesController(object): \
         """
         try:
             get_node_by_id(id)
+
+            payload = cherrypy.request.json
+
+            # validate node update request data
+            data, errors = NodeSchema().load(payload)
+            if errors:
+                raise cherrypy.HTTPError(status=400,
+                                         message='Malformed request')
 
             # Empty response (http status 204) for successful PUT request
             cherrypy.response.status = 204
