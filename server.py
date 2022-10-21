@@ -6,7 +6,6 @@
 CherryPy-based webservice daemon with background threads
 """
 
-from __future__ import print_function
 import threading
 import json
 import cherrypy
@@ -56,7 +55,7 @@ class MyBackgroundThread(plugins.SimplePlugin):
     """CherryPy plugin to create a background worker thread"""
 
     def __init__(self, bus):
-        super(MyBackgroundThread, self).__init__(bus)
+        super().__init__(bus)
 
         self.t = None
 
@@ -72,36 +71,32 @@ class MyBackgroundThread(plugins.SimplePlugin):
     start.priority = 85
 
 
-class NodesController(object): \
+class NodesController: \
         # pylint: disable=too-few-public-methods
 
     """Controller for fictional "nodes" webservice APIs"""
 
     @cherrypy.tools.json_out()
-    def get_all(self): \
-            # pylint: disable=no-self-use
+    def get_all(self):
         """
         Handler for /nodes (GET)
         """
         return [{'name': name} for name in sample_nodes]
 
     @cherrypy.tools.json_out()
-    def get(self, name): \
-            # pylint: disable=no-self-use
+    def get(self, name):
         """
         Handler for /nodes/<name> (GET)
         """
 
         if name not in sample_nodes:
-            raise cherrypy.HTTPError(
-                404, 'Node \"{0}\" not found'.format(name))
+            raise cherrypy.HTTPError(404, f'Node \"{name}\" not found')
 
         return [{'name': name}]
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def add_node(self): \
-            # pylint: disable=no-self-use
+    def add_node(self):
         """
         Handler for /nodes (POST)
         """
@@ -112,27 +107,22 @@ class NodesController(object): \
 
         if errors:
             # Attempt to format errors dict from Marshmallow
-            errmsg = ', '.join(
-                ['Key: [{0}], Error: {1}'.format(key, error)
-                 for key, error in errors.items()])
+            errmsg = ', '.join([f'Key: [{key}], Error: {error}' for key, error in errors.items()])
 
-            raise cherrypy.HTTPError(
-                400, 'Malformed POST request data: {0}'.format(errmsg))
+            raise cherrypy.HTTPError(400, f'Malformed POST request data: {errmsg}')
 
         # Successful POST request
-        return 'TODO: add node [{0}]'.format(data['name'])
+        return f"TODO: add node [{data['name']}]"
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def update_node(self, name): \
-            # pylint: disable=no-self-use
+    def update_node(self, name):
         """
         Handler for /nodes/<name> (PUT)
         """
 
         if name not in sample_nodes:
-            raise cherrypy.HTTPError(
-                404, 'Node \"{0}\" not found'.format(name))
+            raise cherrypy.HTTPError(404, f'Node \"{name}\" not found')
 
         # Empty response (http status 204) for successful PUT request
         cherrypy.response.status = 204
@@ -142,7 +132,7 @@ class NodesController(object): \
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def delete_node(self, name): \
-            # pylint: disable=unused-argument,no-self-use
+            # pylint: disable=unused-argument
         """
         Handler for /nodes/<name> (DELETE)
         """
